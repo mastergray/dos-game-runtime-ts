@@ -1,4 +1,4 @@
-# dos-game-runtime-js
+# dos-game-runtime-ts
 
 A headless browser DOS runtime plus reusable input primitives. Each game
 deployment owns everything above that boundary: the page, the layout,
@@ -27,7 +27,7 @@ but not yet built.
 ## Use
 
 ```js
-import { DosPlayer } from "dos-game-runtime-js";
+import { DosPlayer } from "dos-game-runtime-ts";
 
 const player = await DosPlayer.init({
     canvas: document.querySelector("#canvas"),
@@ -38,17 +38,17 @@ const player = await DosPlayer.init({
 await player.start();
 
 // Physical keyboard: forwards key events, releases everything on focus loss.
-import { KeyboardSource } from "dos-game-runtime-js";
+import { KeyboardSource } from "dos-game-runtime-ts";
 const keyboard = KeyboardSource.init({ input: player.input, target: document });
 keyboard.attach();
 
 // Physical mouse: relative motion and buttons from pointer events on the canvas.
-import { MouseSource } from "dos-game-runtime-js";
+import { MouseSource } from "dos-game-runtime-ts";
 const mouse = MouseSource.init({ input: player.input, surface: canvas, pointerLock: canvas, sensitivity: 1.5 });
 mouse.attach();
 
 // Touch controls: the runtime supplies mechanics, your page supplies meaning.
-import { Button, DPad, Trackpad, InputMapper } from "dos-game-runtime-js";
+import { Button, DPad, Trackpad, InputMapper } from "dos-game-runtime-ts";
 const mapper = InputMapper.init({ input: player.input });
 const dpad = DPad.init({ surface: document.querySelector("#dpad") });
 dpad.attach();
@@ -78,7 +78,7 @@ The deployment must serve the js-dos runtime assets
 (`node_modules/emulators/dist/`) and tell the adapter where:
 
 ```js
-import { DosPlayer, JsDosEmulatorAdapter } from "dos-game-runtime-js";
+import { DosPlayer, JsDosEmulatorAdapter } from "dos-game-runtime-ts";
 
 const adapter = await JsDosEmulatorAdapter.init({ pathPrefix: "/emulators/" });
 const player = await DosPlayer.init({ canvas, container, game, adapter });
@@ -117,7 +117,7 @@ supplies the game files, the layout, and what every control means.
 `DosDeployment` composes the whole thing from one config:
 
 ```js
-import { DosDeployment } from "dos-game-runtime-js";
+import { DosDeployment } from "dos-game-runtime-ts";
 
 const deployment = await DosDeployment.init({
     canvas: document.querySelector("#canvas"),

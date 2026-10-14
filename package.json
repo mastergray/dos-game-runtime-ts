@@ -1,5 +1,5 @@
 {
-  "name": "dos-game-runtime-js",
+  "name": "dos-game-runtime-ts",
   "version": "0.1.0",
   "description": "Headless browser DOS runtime plus reusable input primitives; each game deployment owns everything above that boundary",
   "type": "module",
@@ -37,10 +37,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mastergray/dos-game-runtime-js.git"
+    "url": "git+https://github.com/mastergray/dos-game-runtime-ts.git"
   },
-  "homepage": "https://github.com/mastergray/dos-game-runtime-js#readme",
-  "bugs": "https://github.com/mastergray/dos-game-runtime-js/issues",
+  "homepage": "https://github.com/mastergray/dos-game-runtime-ts#readme",
+  "bugs": "https://github.com/mastergray/dos-game-runtime-ts/issues",
   "engines": {
     "node": ">=22.13"
   },

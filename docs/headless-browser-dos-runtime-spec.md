@@ -38,8 +38,8 @@ surface.
 
 | Field | Value |
 |---|---|
-| Package name | `dos-game-runtime-js` |
-| Repository | `github.com/mastergray/dos-game-runtime-js` (personal repo; the CTG test frameworks are dependencies only) |
+| Package name | `dos-game-runtime-ts` |
+| Repository | `github.com/mastergray/dos-game-runtime-ts` (personal repo; the CTG test frameworks are dependencies only) |
 | Consumer | A *game deployment* (a page that owns its own HTML, layout, game files and control mappings), which imports the runtime from `dist/index.js` |
 | Runtime environment | Evergreen browsers with WebAssembly, Pointer Events, `AudioContext`, `Gamepad` API, `requestAnimationFrame` |
 | Test environment | Node ≥ 22.13 for the `spec` suite; Chromium through `ctg-js-browser-test` (Playwright) for the `browser` suite |
@@ -54,7 +54,7 @@ implementation order; each later class may import from earlier ones,
 never the reverse.
 
 ```
-dos-game-runtime-js/
+dos-game-runtime-ts/
     src/
         index.ts
         shared.types.ts
