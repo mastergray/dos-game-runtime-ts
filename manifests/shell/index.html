@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{{name}}</title>
+    <style>
+        /* IBM VGA 8x16 from The Ultimate Oldschool PC Font Pack (VileR, int10h.org), CC BY-SA 4.0; see fonts/LICENSE.TXT. */
+        @font-face { font-family: "IBM VGA"; src: url("./fonts/WebPlus_IBM_VGA_8x16.woff") format("woff"); font-display: block; }
+
+        /* The sixteen colours we use, by their DOS names. */
+        :root {
+            --black: #000000; --dark-gray: #555555; --light-gray: #aaaaaa; --white: #ffffff;
+            --red: #aa0000; --light-red: #ff5555; --yellow: #ffff55; --cyan: #55ffff;
+            --cell: 16px;                 /* one text cell: the font's native 8x16 at 1x; 2x on tall screens */
+            color-scheme: dark;
+        }
+        @media (min-height: 720px) and (min-width: 900px) { :root { --cell: 32px; } }
+
+        /* Theme tokens: BIOS grey for the keycaps, a Norton-style blue for the dialog. */
+        :root { --blue: #0000aa; --light-cyan: #55ffff;
+                --panel-bg: var(--blue); --panel-fg: var(--white); --panel-border: var(--white); --panel-shadow: var(--black);
+                --select-bg: var(--light-cyan); --select-fg: var(--black); --danger-fg: var(--light-red); --danger-bg: var(--red); --muted-fg: var(--light-gray);
+                --key-bg: var(--light-gray); --key-fg: var(--black); --key-shadow: var(--dark-gray);
+                --tab-bg: var(--dark-gray); --tab-fg: var(--light-gray);
+                --bar-bg: var(--key-bg); --bar-fg: var(--key-fg); --bar-hot: var(--white); --bar-rule: var(--key-shadow); --bar-muted: var(--key-shadow);
+                --page-bg: var(--black); }
+        /* Themes: the page behind the picture and controls, so a game's own black edge can be told from the page. Black is the
+           default; the others are chosen under View and remembered. */
+        :root[data-theme="dark-grey"] { --page-bg: #2a2a2a; }
+        :root[data-theme="grey"] { --page-bg: var(--dark-gray); --tab-bg: #3a3a3a; }
+        :root[data-theme="blue"] { --page-bg: var(--blue); }
+        :root[data-theme="teal"] { --page-bg: #00aaaa; }
+        /* The light pages darken the chrome a step, so keycaps and the bar still stand off the page. */
+        :root[data-theme="beige"] { --page-bg: #d8c8a8; --key-bg: #b8a888; --key-shadow: #7a6a50; --tab-bg: #9a8a6c; --tab-fg: #e8dcc4; --bar-hot: #fff8e8; }
+        :root[data-theme="off-white"] { --page-bg: #e8e6e0; --key-bg: #c4c2bc; --key-shadow: #6e6c68; --tab-bg: #a0a098; --tab-fg: #f0eee8; --bar-hot: var(--white); }
+        /* On the light pages the title screen's text turns dark to stay readable. */
+        :root[data-theme="beige"] #title h1, :root[data-theme="off-white"] #title h1 { color: var(--black); }
+        :root[data-theme="beige"] #title p, :root[data-theme="beige"] #title .hints, :root[data-theme="off-white"] #title p, :root[data-theme="off-white"] #title .hints { color: var(--dark-gray); }
+
+        html, body { margin: 0; padding: 0; height: 100%; background: var(--page-bg); color: var(--light-gray);
+                     font: var(--cell) / 1 "IBM VGA", "Courier New", monospace; overscroll-behavior: none; -webkit-font-smoothing: none; }
+        body { overflow: hidden; }
+        button { font: inherit; border-radius: 0; }
+
+        /* The play area is a grid: a bar with the MENU keycap, then the picture between two side columns in landscape, or above
+           a stack of components in portrait. Controls never cover the picture; it fits whatever space they leave. Fullscreen targets this element. */
+        #play { position: fixed; inset: 0; background: var(--page-bg); touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden;
+                display: grid; gap: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+                grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "bar picture right" "left picture right"; }
+        /* In landscape the shell sets the picture cell's width to the fitted picture, so the columns share what is left and their
+           controls hug the picture rather than the screen edges. With nothing on the left, the MENU bar moves above the right column. */
+        @media (orientation: landscape) {
+            #play.touch-on.has-right:not(.has-left) { grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr); grid-template-areas: "spacer picture bar" "spacer picture right"; }
+            /* The menu bar with no touch controls spans the top, a row of keycaps over the picture; with them it stays in the side column. */
+            #play.menubar, #play.menubar.touch-on.has-right:not(.has-left) { grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr); grid-template-areas: "bar bar bar" "left picture right"; }
+        }
+        #play:focus { outline: none; }
+        #bar { grid-area: bar; display: flex; align-items: center; padding: 0.5em 1.5ch 0.75em; min-height: 2.5em; }
+        @media (orientation: landscape) { #bar { padding: 0.5em 1.5ch 0.5em; } }
+        /* The menu as a bar: the dialog's items laid out as small keycaps that wrap; the bar's own width does not widen its column. */
+        /* The menu bar: a QBasic strip across the top, light grey with black titles whose first letter is white; an open title
+           inverts and drops a grey panel of the dialog's items under it. The dialog itself is then only the confirm step. */
+        #play.menubar #menu-button { display: none; }
+        #play.menubar #bar { padding: 0 0 8px; min-height: 0; display: block; }                        /* A fixed gap between the strip and the picture, the same at every font size */
+        .menubar { border-bottom: 1px solid var(--bar-rule); }
+        #play:has(#title:not(.hidden)) .menubar { visibility: hidden; }
+        #play:not(.menubar) .menubar { display: none; }
+        .menubar { display: flex; align-items: stretch; background: var(--bar-bg); color: var(--bar-fg); line-height: 1.5; }
+        .menubar .pull { position: relative; }
+        .menubar .pull > button { padding: 0 1ch; border: none; background: none; color: inherit; font: inherit; line-height: 1.5; cursor: pointer; }
+        .menubar .pull > button b { font-weight: normal; color: var(--bar-hot); }
+        .menubar .pull.open > button { background: var(--black); color: var(--white); }
+        .menubar .pull.open > button b { color: var(--yellow); }
+        .menubar .drop { display: none; position: absolute; z-index: 25; top: 100%; left: 0; min-width: 24ch; padding: 0.25em 0; background: var(--bar-bg); color: var(--bar-fg);
+                          border: 1px solid var(--black); outline: 1px solid var(--bar-bg); box-shadow: 1ch 0.5em 0 rgba(0, 0, 0, 0.5); }
+        .menubar .pull.open > .drop { display: block; }
+        .menubar .drop button { display: block; width: 100%; text-align: left; padding: 0 2ch; border: none; background: none; color: inherit; font: inherit; line-height: 1.5; white-space: nowrap; cursor: pointer; }
+        .menubar .drop button:hover, .menubar .drop button:focus-visible { background: var(--black); color: var(--white); outline: none; }
+        .menubar .drop button:disabled { color: var(--dark-gray); }
+        .menubar .name { margin-left: auto; padding: 0 1ch; color: var(--bar-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #play.menubar #menu .status { display: none; }
+        #play.menubar #menu .confirm, #play.menubar #menu .modes { border-top: none; padding-top: 0; }
+        /* A screen mode without the bar parks it above the top edge, where a pointer at the edge, or a tap there, slides it in; it
+           stays while the pointer is on it or a pull-down is open. Stretched, the picture and its canvas fill the cell regardless of aspect. */
+        #play.nobar #bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; transform: translateY(-100%); transition: transform 120ms; }
+        #play.nobar.peek #bar, #play.nobar #bar:has(.pull.open) { transform: none; }
+        #play.stretch #canvas { width: 100% !important; height: 100% !important; left: 0; top: 0; transform: none; }
+        #picture { grid-area: picture; position: relative; min-width: 0; min-height: 0; justify-self: center; }
+        #canvas { display: block; image-rendering: pixelated; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        .side { display: none; flex-direction: column; justify-content: space-between; gap: 8px; padding: 6px; min-width: 0; min-height: 0; max-width: 42vw; overflow: hidden; }
+        #left { grid-area: left; } #right { grid-area: right; }
+        .side .half { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        #left .half, #left.whole { align-items: flex-end; }
+        #right .half, #right.whole { align-items: flex-start; }
+
+        .side .half:empty { display: none; }
+        .side.whole { justify-content: center; align-items: center; }
+        .side.whole .component.c-keyboard { max-width: none; }
+        #below { grid-area: below; display: none; flex-direction: column; align-items: center; gap: 10px; padding: 8px; overflow-y: auto; min-height: 0; }
+        #play.touch-on.has-left #left, #play.touch-on.has-right #right { display: flex; }
+        @media (orientation: portrait) {
+            #play { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "bar" "picture" "below"; }
+            #picture { aspect-ratio: var(--aspect, 1.3333); width: 100%; justify-self: center; }
+            #play.stretch:not(.touch-on) { grid-template-rows: auto minmax(0, 1fr) auto; }
+            #play.stretch:not(.touch-on) #picture { aspect-ratio: auto; }
+            #left, #right { display: none !important; }
+            #play.touch-on #below { display: flex; }
+        }
+
+        /* Title screen: a text-mode splash. The Play tap, or Enter, is also the audio-unlock gesture. */
+        #title { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                 gap: var(--cell); background: var(--page-bg); text-align: center;
+                 padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+        #title.hidden { display: none; }
+        #title h1 { margin: 0; font-size: calc(var(--cell) * 2); line-height: 1; color: var(--white); font-weight: normal; letter-spacing: 0; }
+        #title h1::before, #title h1::after { content: "═══ "; color: var(--dark-gray); }
+        #title h1::after { content: " ═══"; }
+        #title p { margin: 0; max-width: 40ch; color: var(--light-gray); line-height: 1.25; }
+        #title .hints { display: flex; flex-direction: column; gap: 0.25em; color: var(--light-gray); }
+        #title .hints:empty { display: none; }
+        #title .hint { color: var(--dark-gray); min-height: 1.25em; }
+        #play-button { padding: 0 2ch; line-height: 2; border: none; background: var(--key-bg); color: var(--key-fg); cursor: pointer; box-shadow: 0.5ch 0.5em 0 var(--key-shadow); }
+        #play-button::after { content: "█"; animation: blink 1s steps(1) infinite; margin-left: 1ch; }
+        #play-button:active { background: var(--white); }
+        #play-button:disabled { background: var(--dark-gray); color: var(--light-gray); }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Menu: one corner keycap, one dialog. */
+        #play:has(#title:not(.hidden)) #bar button { visibility: hidden; }
+        #menu-button { padding: 0 1ch; line-height: 1.5; border: none; background: var(--key-bg); color: var(--key-fg); box-shadow: 0.5ch 0.5em 0 var(--key-shadow); opacity: 0.85; }
+        #menu-button:active { background: var(--white); }
+        #menu { position: absolute; z-index: 30; inset: 0; display: none; background: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;
+                padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+        #menu.open { display: flex; }
+        #menu .panel { position: relative; background: var(--panel-bg); color: var(--panel-fg); border: 4px double var(--panel-border); outline: 1px solid var(--panel-bg);
+                       box-shadow: 1ch 1em 0 var(--panel-shadow); padding: 1em 2ch; min-width: 34ch; max-width: 94vw; max-height: calc(100vh - 2em); }
+        #menu .items { display: grid; gap: 0.25em; max-height: calc(100vh - 4em); overflow-y: auto; }
+        #menu h2 { position: absolute; top: -0.75em; left: 50%; transform: translateX(-50%); margin: 0; padding: 0 1ch; font-size: inherit; font-weight: normal;
+                   background: var(--panel-bg); color: var(--panel-fg); white-space: nowrap; }
+        #menu h2 { color: var(--yellow); }
+        #menu button { text-align: center; padding: 0 1ch; line-height: 1.5; border: none; background: var(--panel-bg); color: var(--panel-fg); cursor: pointer; }
+        #menu button::before { content: "  "; white-space: pre; }
+        #menu button:hover, #menu button:focus-visible { background: var(--select-bg); color: var(--select-fg); outline: none; }
+        #menu button:hover::before, #menu button:focus-visible::before { content: "► "; }
+        #menu button:active { background: var(--select-bg); color: var(--select-fg); opacity: 0.8; }
+        #menu .danger { color: var(--danger-fg); }
+        #menu .danger:hover, #menu .danger:focus-visible { background: var(--danger-bg); color: var(--white); }
+        #menu .status { color: var(--muted-fg); min-height: 1.25em; margin-top: 0.25em; text-align: center; }
+        #menu .confirm { display: none; border-top: 1px solid var(--panel-border); padding-top: 0.5em; }
+        #menu .confirm.open { display: block; }
+        #menu .confirm p { margin: 0 0 0.5em; color: var(--danger-fg); line-height: 1.25; }
+        #menu .confirm .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1ch; }
+        #menu.confirming .items > button { display: none; }
+        #menu .modes { display: none; border-top: 1px solid var(--panel-border); padding-top: 0.5em; }
+        #menu .modes.open { display: grid; gap: 0.25em; }
+        #menu.choosing .items > button { display: none; }
+        @media (max-height: 500px) {
+            #menu .panel { padding: 0.75em 1ch; min-width: 30ch; }
+            #menu .items { gap: 0; max-height: calc(100vh - 3.5em); }
+            #menu .status { display: none; }
+        }
+
+        /* Components: keycaps in the BIOS grey of MENU and PLAY. --key sizes the d-pad arms, --kb-key the keycaps. */
+        #play { --key: 56px; --key-whole: 68px; --kb-key: 36px; --kb-gap: 4px; }
+        /* Portrait: the keyboard spans the width (its keys stretch), and the key height grows with the screen only as far as the
+           room under a full-width 4:3 picture allows, so a tablet's keyboard is wide without squeezing the picture. */
+        @media (orientation: portrait) { #play { --key: 46px; --kb-gap: 5px;
+                                                 --kb-key: clamp(52px, min(calc((100vw - 61px) / 10), calc((100vh - 0.75 * 100vw - 130px) / 7.5)), 80px); } }
+        @media (orientation: portrait) { .component.c-keyboard { width: 100%; } }
+        @media (orientation: landscape) and (max-height: 420px) { #play { --key: 44px; --key-whole: 52px; --kb-key: 32px; } }
+        #dpad { position: relative; width: calc(var(--key) * 3); height: calc(var(--key) * 3); flex: none; pointer-events: auto; touch-action: none; opacity: 0.92;
+                background: linear-gradient(var(--key-bg), var(--key-bg)) center / var(--key) 100% no-repeat,
+                            linear-gradient(var(--key-bg), var(--key-bg)) center / 100% var(--key) no-repeat;
+                filter: drop-shadow(4px 4px 0 var(--key-shadow)); }
+        #dpad .arrow { position: absolute; width: var(--key); height: var(--key); display: flex; align-items: center; justify-content: center;
+                       color: var(--key-fg); font-size: calc(var(--key) * 0.45); line-height: 1; pointer-events: none; }
+        #dpad .up { top: 0; left: var(--key); } #dpad .down { bottom: 0; left: var(--key); }
+        #dpad .left { left: 0; top: var(--key); } #dpad .right { right: 0; top: var(--key); }
+        .side.whole #dpad { --key: var(--key-whole); }
+        /* A group is as wide as its longest row of keycaps, no wider than its slot; rows then share that width. */
+        .inline-row { display: flex; align-items: center; gap: 12px; flex: none; max-width: 100%; }
+        .component { display: flex; flex-direction: column; gap: 5px; flex: none; width: calc(var(--cols) * var(--kb-key) + (var(--cols) - 1) * var(--kb-gap)); max-width: 100%; }
+        .component.c-letters, .component.c-digits { --cols: 10; }
+        .component.c-fkeys { --cols: 6; }
+        .component.c-modifiers { --cols: 3.6; }
+        .component.c-key, .component.c-keys { --cols: 2.4; }
+        .component.c-keyboard .pane { display: flex; flex-direction: column; gap: 5px; }
+        .component.c-keyboard .pane.hidden { display: none; }
+        .component.c-keyboard .tabs { display: flex; gap: var(--kb-gap); margin-bottom: 4px; }
+        .component.c-keyboard .toprow .key { height: calc(var(--kb-key) * 0.7); font-size: calc(var(--kb-key) * 0.3); padding: 0; }
+        .component.c-keyboard .tab { flex: 1 1 0; height: calc(var(--kb-key) * 0.8); display: flex; align-items: center; justify-content: center;
+                                     background: var(--tab-bg); color: var(--tab-fg); font-size: calc(var(--kb-key) * 0.36); line-height: 1;
+                                     pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+        .component.c-keyboard .tab.active { background: var(--key-bg); color: var(--key-fg); box-shadow: 3px 3px 0 var(--key-shadow); }
+        .component.c-keyboard .key.wide { flex: 1.6 1 0; }
+        /* compass style: the compass at the left, three rows of three fixed-width keys, and the function and editing keys filling
+           the rest in three slim-font rows of the same height. */
+        .component.c-keyboard .compass-block { display: flex; gap: calc(var(--kb-gap) * 2); margin-bottom: 5px; }
+        .component.c-keyboard .compass { display: flex; flex-direction: column; gap: var(--kb-gap); flex: 0 0 auto; width: calc(3 * var(--kb-key) + 2 * var(--kb-gap)); }
+        .component.c-keyboard .compass .row { justify-content: flex-start; }
+        .component.c-keyboard .compass .key { flex: 0 0 var(--kb-key); width: var(--kb-key); }   /* Explicit, since Safari sizes a flex column by its items' bases */
+        .component.c-keyboard .beside { display: flex; flex-direction: column; gap: var(--kb-gap); flex: 1 1 0; min-width: 0; }
+        .component.c-keyboard .beside .toprow .key { height: var(--kb-key); }
+        .component.c-keyboard .key.arrow-key { font-size: calc(var(--kb-key) * 0.5); }
+        .component.c-keyboard .spacer { flex: 1 1 0; min-width: 0; }
+        .component.c-keyboard .spacer.wide { flex: 1.6 1 0; }
+        .component.c-keys .row { gap: calc(var(--kb-gap) * 3); }
+        .component .row { display: flex; gap: var(--kb-gap); justify-content: center; }
+        .key { flex: 1 1 0; min-width: 0; height: var(--kb-key); display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 0.25ch;
+               background: var(--key-bg); color: var(--key-fg); box-shadow: 3px 3px 0 var(--key-shadow); font-size: calc(var(--kb-key) * 0.42); line-height: 1;
+               pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; opacity: 0.92; overflow: hidden; white-space: nowrap; }
+        .key.wide { flex: 2.2 1 0; }
+        .key.modifier { font-size: calc(var(--kb-key) * 0.34); }
+        .key.down { background: var(--white); }
+        .key.modifier.latched { background: var(--select-bg); }
+        .component.c-keyboard .key.switch { background: var(--tab-bg); color: var(--tab-fg); }
+        .component.c-key .key, .component.c-keys .key { height: calc(var(--kb-key) * 1.2); }
+        .component.c-letters:not(.compact) .row:nth-child(2) { padding: 0 calc(var(--kb-key) * 0.5); }
+        .component.c-letters:not(.compact) .row:nth-child(3) { padding: 0 calc(var(--kb-key) * 1.5); }
+        .component.compact .key { flex: 0 0 var(--kb-key); }
+    </style>
+</head>
+<body>
+    <div id="play" tabindex="0">
+        <div id="bar"><button id="menu-button" aria-label="Menu">MENU</button></div>
+        <div id="left" class="side"><div id="upper-left" class="half"></div><div id="lower-left" class="half"></div></div>
+        <div id="picture"><canvas id="canvas"></canvas></div>
+        <div id="right" class="side"><div id="upper-right" class="half"></div><div id="lower-right" class="half"></div></div>
+        <div id="below"></div>
+        <div id="title">
+            <h1 id="title-heading">{{title}}</h1>
+            <button id="play-button">PLAY</button>
+            <p class="hints" id="title-hints"></p>
+            <p class="hint" id="title-hint"></p>
+        </div>
+        <div id="menu">
+            <div class="panel">
+                <h2>PAUSED · tap outside to resume</h2>
+                <div class="items">
+                <button id="m-fullscreen">Screen mode</button>
+                <button id="m-touch">Touch controls: off</button>
+                <button id="m-mute">Sound: on</button>
+                <button id="m-menubar">Menu bar: off</button>
+                <button id="m-keyboard">Keyboard: Tabs</button>
+                <button id="m-theme">Theme: Black</button>
+                <button id="m-restart" class="danger">Restart</button>
+                <button id="m-clear" class="danger">Clear saves &amp; restart</button>
+                <div class="confirm" id="m-confirm">
+                    <p id="m-confirm-text"></p>
+                    <div class="row">
+                        <button id="m-confirm-yes" class="danger">Yes</button>
+                        <button id="m-confirm-no">No</button>
+                    </div>
+                </div>
+                <div class="modes" id="m-modes"></div>
+                <div class="status" id="m-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "name": "dos-game-runtime-js",
+  "version": "0.1.0",
+  "description": "Headless browser DOS runtime plus reusable input primitives; each game deployment owns everything above that boundary",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "check": "run-s check:src check:tests",
+    "check:src": "tsc --noEmit",
+    "check:tests": "tsc -p tsconfig.tests.json",
+    "clean": "node scripts/clean-dist.mjs",
+    "compile": "tsc",
+    "compile:package": "tsc -p tsconfig.package.json",
+    "build": "run-s clean compile",
+    "build:package": "run-s clean compile:package",
+    "prepare": "npm run build:package",
+    "test": "node --import tsx tests/run.ts spec",
+    "test:spec": "node --import tsx tests/run.ts spec",
+    "test:browser": "node --import tsx tests/run.ts browser",
+    "test:all": "node --import tsx tests/run.ts spec browser",
+    "harness": "node --import tsx scripts/serve-harness.ts",
+    "pack-bundle": "node --import tsx scripts/pack-bundle.ts",
+    "manifest-schema": "node --import tsx scripts/manifest-schema.ts",
+    "build-manifests": "node --import tsx scripts/build-manifests.ts"
+  },
+  "author": "mastergray",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mastergray/dos-game-runtime-js.git"
+  },
+  "homepage": "https://github.com/mastergray/dos-game-runtime-js#readme",
+  "bugs": "https://github.com/mastergray/dos-game-runtime-js/issues",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ctg-js-browser-test": "github:claymoretechgroup/ctg-js-browser-test#v2.0.0",
+    "ctg-js-test": "github:claymoretechgroup/ctg-js-test#v4.0.0",
+    "esbuild": "0.28.2",
+    "npm-run-all": "^4.1.5",
+    "playwright": "1.62.0",
+    "tsx": "^4.23.11",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "emulators": "8.4.2"
+  }
+}

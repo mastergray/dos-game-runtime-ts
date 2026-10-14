@@ -1,0 +1,313 @@
+{
+  "mode": "direct",
+  "crossOriginIsolated": true,
+  "emulatorsKeys": [
+    "pathPrefix",
+    "pathSuffix",
+    "version",
+    "wasmModulesPromise",
+    "wdosboxJs",
+    "wdosboxxJs",
+    "wdosboxxJsJspi"
+  ],
+  "emulatorsVersion": "8.4.2 (7fb80db8afda9ca5cde776abb7313545)",
+  "start": "started",
+  "afterBoot": {
+    "frames": 18,
+    "frameSizes": [
+      [
+        320,
+        200
+      ]
+    ],
+    "firstFrame": {
+      "rgb": 768000,
+      "rgba": null,
+      "w": 640,
+      "h": 400,
+      "rgbCtor": "Uint8Array",
+      "rgbaCtor": null
+    },
+    "soundPushes": 423,
+    "soundSamples": 226254,
+    "stdout": [
+      "\u001b[44;1m\r\n",
+      " \u001b[32mWelcome to DOSBox jsdos   \u001b[37m                                         \r\n",
+      "                                                                    \r\n",
+      " For a short introduction for new users type: \u001b[33mINTRO\u001b[37m                 \r\n",
+      " For supported shell commands type: \u001b[33mHELP\u001b[37m                            \r\n",
+      "                                                                    \r\n",
+      " To adjust the emulated CPU speed, use \u001b[31mctrl-F11\u001b[37m and \u001b[31mctrl-F12\u001b[37m.       \r\n",
+      " To activate the keymapper \u001b[31mctrl-F1\u001b[37m.                                 \r\n",
+      " For more information read the \u001b[36mREADME\u001b[37m file in the DOSBox directory. \r\n",
+      "                                                                    \r\n",
+      " \u001b[32mHAVE FUN!\u001b[37m                                                          \r\n",
+      " \u001b[32mThe DOSBox Team \u001b[33mhttp://www.dosbox.com\u001b[37m                              \r\n",
+      "\u001b[0m\r\n",
+      "Z:\\>SET BLASTER=A220 I7 D1 H5 T6\r\n",
+      "\r\n",
+      "Z:\\>mount c .\r\n",
+      "Drive C is mounted as local directory ./\r\n",
+      "\r\n",
+      "Z:\\>c:\r\n",
+      "\r\n",
+      "C:\\>GAME.EXE\r\n"
+    ],
+    "messages": [
+      [
+        "error",
+        "[LOG_SB]DSP:Reset"
+      ],
+      [
+        "error",
+        "[LOG_BIOS]Keyboard layout file auto not found"
+      ],
+      [
+        "error",
+        "[LOG_BIOS]Keyboard layout file auto not found"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: SET BLASTER=A220 I7 D1 H5 T6"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: mount c ."
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Execute mount.COM 0"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: c:"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: GAME.EXE"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Execute GAME.EXE 0"
+      ],
+      [
+        "error",
+        "[LOG_BIOS]INT15:Unknown call   EB"
+      ]
+    ],
+    "exited": false,
+    "errors": [],
+    "bundleBytes": 691509,
+    "startMs": 108,
+    "ciKeys": [
+      "asyncifyStatsPromise",
+      "asyncifyStatsResolve",
+      "configPromise",
+      "configResolve",
+      "connectPromise",
+      "connectReject",
+      "connectResolve",
+      "dataChunkPromise",
+      "dataChunkResolve",
+      "disconnectPromise",
+      "disconnectResolve",
+      "eventsImpl",
+      "exitPromise",
+      "exitResolve",
+      "exited",
+      "frameHeight",
+      "frameWidth",
+      "freq",
+      "fsDeleteFilePromise",
+      "fsDeleteFileResolve",
+      "fsGetFileParts",
+      "fsGetFilePromise",
+      "fsGetFileResolve",
+      "fsTreePromise",
+      "fsTreeResolve",
+      "getRunningProgramPromise",
+      "getRunningProgramResolve",
+      "keyMatrix",
+      "myPeerId",
+      "netPollInterval",
+      "netRecv",
+      "netSent",
+      "options",
+      "panicMessages",
+      "persistPromise",
+      "persistResolve",
+      "persistSockdrivesPromise",
+      "persistSockdrivesResolve",
+      "rgb",
+      "rgba",
+      "startedAt",
+      "transport",
+      "utf8Decoder"
+    ],
+    "eventKeys": [
+      "delayedMessages",
+      "delayedStdout",
+      "fireExit",
+      "fireFrame",
+      "fireFrameSize",
+      "fireMessage",
+      "fireNetworkConnected",
+      "fireNetworkDisconnected",
+      "fireSoundPush",
+      "fireStdout",
+      "fireUnload",
+      "onExit",
+      "onExitConsumers",
+      "onFrame",
+      "onFrameConsumers",
+      "onFrameSize",
+      "onFrameSizeConsumers",
+      "onMessage",
+      "onMessageConsumers",
+      "onNetworkConnectedConsumers",
+      "onNetworkDisconnectedConsumers",
+      "onSoundPush",
+      "onSoundPushConsumers",
+      "onStdout",
+      "onStdoutConsumers",
+      "onUnload",
+      "onUnloadConsumers"
+    ],
+    "soundFrequency": 44100,
+    "size0": [
+      640,
+      400
+    ],
+    "config": {
+      "dosboxConf": "[sdl]\nautolock=true\n\n[dosbox]\nmachine=svga_s3\nmemsize=16\n\n[cpu]\ncore=auto\ncputype=auto\ncycles=auto\n\n[render]\naspect=false\n\n[autoexec]\nmount c .\nc:\nGAME.EXE\n",
+      "jsdosConf": {
+        "version": "8"
+      }
+    },
+    "running": "null(non-promise)",
+    "lastFrame": {
+      "rgb": 192000,
+      "rgba": null,
+      "w": 320,
+      "h": 200
+    },
+    "soundCtor": "Float32Array"
+  },
+  "pixels": {
+    "w": 320,
+    "h": 200,
+    "nonBlack": 61549,
+    "total": 64000
+  },
+  "keyEnter": [
+    "ok",
+    "ok"
+  ],
+  "keyBogus": "ok",
+  "mouse": [
+    "ok",
+    "ok",
+    "ok"
+  ],
+  "afterInput": {
+    "frames": 20,
+    "sound": [
+      594,
+      317806,
+      "Float32Array"
+    ],
+    "running": "null(non-promise)",
+    "errors": [],
+    "messages": [
+      [
+        "error",
+        "[LOG_SB]DSP:Reset"
+      ],
+      [
+        "error",
+        "[LOG_BIOS]Keyboard layout file auto not found"
+      ],
+      [
+        "error",
+        "[LOG_BIOS]Keyboard layout file auto not found"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: SET BLASTER=A220 I7 D1 H5 T6"
+      ],
+      [
+        "error",
+        "[LOG_FILES]Special file open command 80 file Z:\\AUTOEXEC.BAT"
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Parsing command line: mount c ."
+      ],
+      [
+        "error",
+        "[LOG_EXEC]Execute mount.COM 0"
+      ]
+    ],
+    "stdout": [
+      "\u001b[44;1m\r\n",
+      " \u001b[32mWelcome to DOSBox jsdos   \u001b[37m                                         \r\n",
+      "                                                                    \r\n",
+      " For a short introduction for new users type: \u001b[33mINTRO\u001b[37m                 \r\n",
+      " For supported shell commands type: \u001b[33mHELP\u001b[37m                            \r\n",
+      "                                                                    \r\n",
+      " To adjust the emulated CPU speed, use \u001b[31mctrl-F11\u001b[37m and \u001b[31mctrl-F12\u001b[37m.       \r\n",
+      " To activate the keymapper \u001b[31mctrl-F1\u001b[37m.                                 \r\n",
+      " For more information read the \u001b[36mREADME\u001b[37m file in the DOSBox directory. \r\n",
+      "                                                                    \r\n"
+    ]
+  },
+  "persistFull": "null",
+  "persistChanges": "null",
+  "fsTree": "{\"name\":\".\",\"nodes\":[{\"name\":\"DATA1.BIN\",\"nodes\":null,\"size\":281551},{\"name\":\"GAME!.COM\",\"nodes\":null,\"size\":284},{\"name\":\"GAME.EXE\",\"nodes\":null,\"size\":79839},{\"name\":\"DATA2.BIN\",\"nodes\":null,\"size\":340983},{\"name\":\".jsdos\",\"nodes\":[{\"name\":\"jsdos.json\",\"nodes\":null,\"size\":16},{\"name\":\"dosbox.conf\",\"nodes\":null,\"size\":154}],\"size\":null}],\"size\":null}",
+  "pause": {
+    "framesDuringPause": 0,
+    "paused": true,
+    "resumedFrames": 0
+  },
+  "exit": "ok",
+  "afterExit": {
+    "exited": true,
+    "sendKey": "no throw"
+  }
+}

@@ -1,0 +1,35 @@
+# AI
+.claude/
+.agents/
+.codex/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# JavaScript
+node_modules/
+dist/
+
+# Runtime
+# Game files are not committed: commercial software used only as local test material
+test-games/
+games/
+old-games.zip
+tests/browser/harness/*.jsdos
+!tests/browser/harness/beep.jsdos
+tests/browser/harness/manifests/
+# Game pages and manifests are written against commercial games kept locally; only the shell is shared
+deployments/
+manifests/*
+!manifests/shell/
+docs/probes/js-dos-8.4.2/games/

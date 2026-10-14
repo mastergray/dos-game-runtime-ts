@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>js-dos probe</title></head>
+<body>
+<canvas id="canvas" width="640" height="400"></canvas>
+<pre id="log"></pre>
+<script src="/emulators/emulators.js"></script>
+<script>
+(() => {
+    const log = (...a) => { const s = a.map(x => typeof x === "string" ? x : JSON.stringify(x)).join(" "); document.getElementById("log").textContent += s + "\n"; console.log("[probe]", s); };
+    const probe = {
+        log: [], frames: 0, frameSizes: [], firstFrame: null, soundPushes: 0, soundSamples: 0, stdout: [], messages: [], exited: false, ci: null,
+        errors: [],
+        async start(mode) {
+            emulators.pathPrefix = "/emulators/";
+            const bytes = new Uint8Array(await (await fetch("/test.jsdos")).arrayBuffer());
+            probe.bundleBytes = bytes.length;
+            const t0 = performance.now();
+            const fn = (b, o) => mode === "direct" ? emulators.dosboxDirect(b, o) : emulators.dosboxWorker(b, o);
+            const ci = await fn(bytes, {});
+            probe.ci = ci;
+            probe.startMs = Math.round(performance.now() - t0);
+            probe.ciKeys = Object.keys(ci).sort();
+            probe.eventKeys = Object.keys(ci.events()).sort();
+            probe.soundFrequency = ci.soundFrequency();
+            probe.size0 = [ci.width(), ci.height()];
+            const ev = ci.events();
+            ev.onFrameSize((w, h) => probe.frameSizes.push([w, h]));
+            ev.onFrame((rgb, rgba) => {
+                probe.frames++;
+                if (!probe.firstFrame) probe.firstFrame = { rgb: rgb ? rgb.length : null, rgba: rgba ? rgba.length : null, w: ci.width(), h: ci.height(), rgbCtor: rgb && rgb.constructor.name, rgbaCtor: rgba && rgba.constructor.name };
+                probe.lastFrame = { rgb: rgb ? rgb.length : null, rgba: rgba ? rgba.length : null, w: ci.width(), h: ci.height() };
+                if (rgba || rgb) probe.draw(rgb, rgba, ci.width(), ci.height());
+            });
+            ev.onSoundPush((samples) => { probe.soundPushes++; probe.soundSamples += samples.length; probe.soundCtor = samples.constructor.name; });
+            ev.onStdout((m) => probe.stdout.push(m));
+            ev.onMessage((t, ...a) => probe.messages.push([t, ...a.map(String)]));
+            ev.onExit(() => { probe.exited = true; });
+            probe.config = await ci.config();
+            probe.running = await Promise.resolve().then(() => ci.getRunningProgram()).then(v => v === null ? "null(non-promise)" : v, e => "ERR " + e.message);
+            return "started";
+        },
+        draw(rgb, rgba, w, h) {
+            const c = document.getElementById("canvas");
+            if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+            const ctx = c.getContext("2d");
+            let buf = rgba;
+            if (!buf) { buf = new Uint8ClampedArray(w * h * 4); for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) { buf[j] = rgb[i]; buf[j+1] = rgb[i+1]; buf[j+2] = rgb[i+2]; buf[j+3] = 255; } }
+            ctx.putImageData(new ImageData(buf instanceof Uint8ClampedArray ? buf : new Uint8ClampedArray(buf.buffer, buf.byteOffset, buf.byteLength), w, h), 0, 0);
+        },
+        pixelStats() {
+            const c = document.getElementById("canvas"); const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+            let nonBlack = 0; for (let i = 0; i < d.length; i += 4) if (d[i] | d[i+1] | d[i+2]) nonBlack++;
+            return { w: c.width, h: c.height, nonBlack, total: d.length / 4 };
+        },
+        snapshot() {
+            const { ci, ...rest } = probe; return JSON.parse(JSON.stringify({ ...rest, log: undefined, bundleBytes: probe.bundleBytes }));
+        },
+        key(code, pressed) { try { probe.ci.sendKeyEvent(code, pressed); return "ok"; } catch (e) { return "ERR " + e.message; } },
+        mouseRel(dx, dy) { try { probe.ci.sendMouseRelativeMotion(dx, dy); return "ok"; } catch (e) { return "ERR " + e.message; } },
+        mouseBtn(b, p) { try { probe.ci.sendMouseButton(b, p); return "ok"; } catch (e) { return "ERR " + e.message; } },
+        async persist(onlyChanges) { try { const r = await probe.ci.persist(onlyChanges); return r === null ? "null" : r.constructor.name + ":" + r.length; } catch (e) { return "ERR " + e.message; } },
+        async fsTree() { try { const t = await probe.ci.fsTree(); return JSON.stringify(t).slice(0, 600); } catch (e) { return "ERR " + e.message; } },
+        async exit() { try { await probe.ci.exit(); return "ok"; } catch (e) { return "ERR " + e.message; } },
+        afterExit() { try { probe.ci.sendKeyEvent(32, true); return "no throw"; } catch (e) { return "throws " + e.constructor.name + ": " + e.message; } },
+    };
+    window.addEventListener("error", (e) => probe.errors.push(String(e.message)));
+    window.addEventListener("unhandledrejection", (e) => probe.errors.push("rejection " + String(e.reason && e.reason.message || e.reason)));
+    window.probe = probe;
+})();
+</script>
+</body>
+</html>

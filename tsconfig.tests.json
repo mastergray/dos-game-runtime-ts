@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "tests", "deployments", "manifests", "scripts/bundle.ts", "scripts/pack-bundle.ts", "scripts/manifest-schema.ts"]
+}

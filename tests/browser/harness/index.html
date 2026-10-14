@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>dos-game-runtime-js harness</title>
+    <style>
+        /* Page chrome: the test controls. A real deployment has none of this. */
+        html, body { margin: 0; padding: 0; background: #202020; color: #ddd; font: 14px monospace; overscroll-behavior: none; }
+        #controls { padding: 8px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        #controls button { font: inherit; padding: 6px 14px; }
+        #surface { width: 200px; height: 200px; margin: 16px; background: #444; touch-action: none; user-select: none; }
+        #extra { display: flex; gap: 16px; }
+        #extra > div { width: 200px; height: 200px; background: #353535; touch-action: none; user-select: none; }
+
+        /* The play area: what a deployment would ship. The container holds the canvas and the overlaid controls, so
+           fullscreen on the container keeps the controls visible, and DosDisplay fits the canvas inside it. */
+        #container { position: relative; width: 640px; height: 480px; background: #000; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; }
+        #container:focus { outline: none; }
+        #canvas { display: block; image-rendering: pixelated; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        /* Play mode: fill the viewport (dynamic height so mobile browser bars do not clip), and the overlay respects the safe areas. */
+        body.play { overflow: hidden; }
+        body.play #controls, body.play #surface, body.play #extra { display: none; }
+        body.play #container { position: fixed; inset: 0; width: auto; height: auto; }
+        #play-exit { display: none; position: absolute; top: max(8px, env(safe-area-inset-top)); right: max(8px, env(safe-area-inset-right)); z-index: 3; font: inherit; padding: 6px 12px; opacity: 0.7; }
+        body.play #play-exit { display: block; }
+
+        /* Touch controls overlaid on the play area; hidden until enabled. Positions use the safe-area insets. */
+        #touch { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+        #touch.on { display: block; }
+        #touch > div { position: absolute; pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none;
+                       background: rgba(60, 60, 110, 0.45); color: #ddd; display: flex; align-items: center; justify-content: center;
+                       border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 12px; font-size: 13px; text-align: center; }
+        #dpad, #stick { left: calc(16px + env(safe-area-inset-left)); bottom: calc(16px + env(safe-area-inset-bottom)); width: 160px; height: 160px; border-radius: 50%; }
+        #touch > #stick { display: none; }
+        #touch.stick > #dpad { display: none; }
+        #touch.stick > #stick { display: flex; }
+        #btn-a { right: calc(16px + env(safe-area-inset-right)); bottom: calc(56px + env(safe-area-inset-bottom)); width: 80px; height: 80px; border-radius: 50%; font-size: 28px; }
+        #btn-b { right: calc(104px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); width: 80px; height: 80px; border-radius: 50%; font-size: 28px; }
+        /* Portrait: the trackpad sits above the corner controls; landscape: between them along the bottom. */
+        #trackpad { left: 50%; transform: translateX(-50%); bottom: calc(200px + env(safe-area-inset-bottom)); width: 220px; height: 110px; }
+        @media (orientation: landscape) { #trackpad { bottom: calc(16px + env(safe-area-inset-bottom)); } }
+        /* Landscape phones: the game picture gets the middle, controls stay in the lower corners. */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #dpad, #stick { width: 130px; height: 130px; }
+            #btn-a, #btn-b { width: 66px; height: 66px; }
+            #btn-b { right: calc(90px + env(safe-area-inset-right)); }
+            #trackpad { width: 180px; height: 90px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls" onmouseup="if (event.target.tagName === 'BUTTON') event.target.blur();">
+        <button id="boot">Boot test.jsdos</button>
+        <button id="boot-beep">Boot beep.jsdos (audio check)</button>
+        <button id="enter">Send Enter</button>
+        <button id="stop">Stop</button>
+        <button id="touch-toggle">Touch controls</button>
+        <button id="stick-toggle">D-pad / stick</button>
+        <button id="play-toggle">Play mode</button>
+        <button id="fullscreen">Fullscreen</button>
+        <button id="mouse-toggle">Mouse: on</button>
+        <button id="save">Save game</button>
+        <button id="clear-save">Clear saves &amp; restart</button>
+        <input id="type" type="text" placeholder="type keys here (phone)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="font: inherit; padding: 6px 10px; width: 12em;">
+        <span id="status">idle</span>
+    </div>
+    <div id="container" tabindex="0">
+        <canvas id="canvas"></canvas>
+        <button id="play-exit">Exit play</button>
+        <div id="touch">
+            <div id="dpad">D-pad</div>
+            <div id="stick">stick</div>
+            <div id="btn-a">A</div>
+            <div id="btn-b">B</div>
+            <div id="trackpad">trackpad · tap = L · 2-finger = R</div>
+        </div>
+    </div>
+    <div id="surface"></div>
+    <div id="extra"></div>
+    <script type="module" src="/harness.js"></script>
+</body>
+</html>
