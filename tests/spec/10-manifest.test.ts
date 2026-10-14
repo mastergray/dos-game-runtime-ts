@@ -146,6 +146,8 @@ const testFile: TestFile = {
         predicateCase("isMousePolicy rejects a zero sensitivity", isMousePolicy, { sensitivity: 0 }, false),
         predicateCase("isMousePolicy accepts a positive scale", isMousePolicy, { scale: { x: 0.5, y: 1 } }, true),
         predicateCase("isMousePolicy rejects a scale with a zero axis", isMousePolicy, { scale: { x: 0.5, y: 0 } }, false),
+        predicateCase("isMousePolicy accepts a signed offset", isMousePolicy, { offset: { x: 0.03, y: -0.05 } }, true),
+        predicateCase("isMousePolicy rejects an offset missing an axis", isMousePolicy, { offset: { x: 0.03 } }, false),
         predicateCase("isLayoutComponent accepts a bare d-pad", isLayoutComponent, { component: "dpad" }, true),
         predicateCase("isLayoutComponent accepts a mapped d-pad in a region", isLayoutComponent, { component: "dpad", region: "left", map: { up: KEY_ENTER }, diagonals: false }, true),
         predicateCase("isLayoutComponent accepts a key with a label and code", isLayoutComponent, { component: "key", label: "FIRE", code: "Space", region: "lower-right" }, true),

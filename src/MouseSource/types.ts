@@ -32,13 +32,22 @@ export interface MouseScale {
     readonly y: FiniteNumber;                                      // Positive
 }
 
-// INTERFACE :: {input:dosInput, surface:inputSurface, sensitivity:finiteNumber?, scale:mouseScale?, pointerLock:pointerLockLike?}
+// INTERFACE :: {x:finiteNumber, y:finiteNumber}
+// Per-axis shifts, as fractions of the surface, added to absolute positions after the scale and before clamping, for a game
+// that draws its cursor away from the driver's position: positive x moves the game's cursor right.
+export interface MouseOffset {
+    readonly x: FiniteNumber;
+    readonly y: FiniteNumber;
+}
+
+// INTERFACE :: {input:dosInput, surface:inputSurface, sensitivity:finiteNumber?, scale:mouseScale?, offset:mouseOffset?, pointerLock:pointerLockLike?}
 // Construction config: where mouse events come from, where deltas go, and how to scale them.
 export interface MouseSourceConfig {
     readonly input: DosInput;                                      // Input API the deltas and buttons are forwarded to
     readonly surface: InputSurface;                                // Element the pointer listeners attach to
     readonly sensitivity?: FiniteNumber;                           // Multiplier applied to deltas; positive; 1 when omitted
     readonly scale?: MouseScale;                                   // Multipliers applied to absolute positions; 1 and 1 when omitted
+    readonly offset?: MouseOffset;                                 // Shifts added to absolute positions; 0 and 0 when omitted
     readonly pointerLock?: PointerLockLike;                        // Element to lock the pointer to; lock() throws UNSUPPORTED when omitted
     readonly touch?: MouseTouchMode;                               // Touch handling; "none" when omitted
 }
@@ -61,6 +70,14 @@ export function isMouseScale(value: unknown): value is MouseScale {
     if (typeof value !== "object" || value === null) return false;
     const scale = value as MouseScale;
     return isSensitivity(scale.x) && isSensitivity(scale.y);
+}
+
+// PREDICATE :: UNKNOWN -> BOOLEAN
+// True when value is a MouseOffset: finite x and y
+export function isMouseOffset(value: unknown): value is MouseOffset {
+    if (typeof value !== "object" || value === null) return false;
+    const offset = value as MouseOffset;
+    return isFiniteNumber(offset.x) && isFiniteNumber(offset.y);
 }
 
 // PREDICATE :: UNKNOWN -> BOOLEAN
@@ -88,6 +105,7 @@ export function isMouseSourceConfig(value: unknown): value is MouseSourceConfig 
         && isInputSurface(config.surface)
         && (config.sensitivity === undefined || isSensitivity(config.sensitivity))
         && (config.scale === undefined || isMouseScale(config.scale))
+        && (config.offset === undefined || isMouseOffset(config.offset))
         && (config.pointerLock === undefined || isPointerLockLike(config.pointerLock))
         && (config.touch === undefined || isMouseTouchMode(config.touch));
 }

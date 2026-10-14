@@ -289,7 +289,9 @@ npx dos-serve-dir dist 8080            # a look at the result, with the isolatio
 ```
 
 `--root <dir>` points the build at a project other than the current
-directory. Game folders in `load.source` resolve against the project
+directory, and `--runtime <dir>` bundles against a local checkout of
+this repository instead of the installed package, which is how a
+runtime change is tried on the deployments before it is published. Game folders in `load.source` resolve against the project
 root, so the same manifests build anywhere the project is checked out.
 
 Twelve games have manifests on the author's machine. Their folders

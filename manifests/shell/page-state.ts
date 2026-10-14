@@ -244,7 +244,7 @@ export const controlsConfigFor = (manifest: GameManifest, dpadSurface: InputSurf
     const dpad = dpadFor(manifest);
     return {
         keyboard: { enabled: keyboard?.enabled ?? true, ...(rejected.size > 0 ? { filter: (code: string) => !rejected.has(code) } : {}) },
-        mouse: { enabled: mouse?.enabled ?? true, touch: mouse?.touch ?? "absolute", pointerLock: mouse?.pointerLock ?? false, ...(mouse?.sensitivity !== undefined ? { sensitivity: mouse.sensitivity } : {}), ...(mouse?.scale !== undefined ? { scale: mouse.scale } : {}) },
+        mouse: { enabled: mouse?.enabled ?? true, touch: mouse?.touch ?? "absolute", pointerLock: mouse?.pointerLock ?? false, ...(mouse?.sensitivity !== undefined ? { sensitivity: mouse.sensitivity } : {}), ...(mouse?.scale !== undefined ? { scale: mouse.scale } : {}), ...(mouse?.offset !== undefined ? { offset: mouse.offset } : {}) },
         dpads: dpadSurface === null || dpad === null ? [] : [{ surface: dpadSurface, diagonals: dpad.diagonals ?? true, map: dpad.map ?? DEFAULT_DPAD }],
         buttons: [],
     };

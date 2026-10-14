@@ -27,8 +27,10 @@ import {
     type TrackpadMap,                                              // What a trackpad control drives
 } from "../InputMapper/types.js";
 import {
+    isMouseOffset,                                                 // Guards the mouse control's absolute offset
     isMouseScale,                                                  // Guards the mouse control's absolute scale
     isMouseTouchMode,                                              // Guards the mouse control's touch mode
+    type MouseOffset,                                              // Per-axis shifts for absolute positions
     type MouseScale,                                               // Per-axis multipliers for absolute positions
     type MouseTouchMode,                                           // How the mouse source treats touch pointers
 } from "../MouseSource/types.js";
@@ -51,12 +53,13 @@ export interface KeyboardControl {
     readonly preventDefault?: boolean;                             // Whether handled key events are prevented; true when omitted
 }
 
-// INTERFACE :: {enabled:BOOLEAN?, sensitivity:finiteNumber?, scale:mouseScale?, touch:mouseTouchMode?, pointerLock:BOOLEAN?}
+// INTERFACE :: {enabled:BOOLEAN?, sensitivity:finiteNumber?, scale:mouseScale?, offset:mouseOffset?, touch:mouseTouchMode?, pointerLock:BOOLEAN?}
 // Mouse source options for a deployment; the source listens on the canvas.
 export interface MouseControl {
     readonly enabled?: boolean;                                    // Initial enable gate of the source; true when omitted
     readonly sensitivity?: FiniteNumber;                           // Positive multiplier for locked deltas; 1 when omitted
     readonly scale?: MouseScale;                                   // Positive multipliers for absolute positions; 1 and 1 when omitted
+    readonly offset?: MouseOffset;                                 // Shifts added to absolute positions, fractions of the canvas; 0 and 0 when omitted
     readonly touch?: MouseTouchMode;                               // Touch handling; "none" when omitted
     readonly pointerLock?: boolean;                                // When true, the canvas is the source's pointer lock target
 }
@@ -148,6 +151,7 @@ export function isMouseControl(value: unknown): value is MouseControl {
     return (control.enabled === undefined || typeof control.enabled === "boolean")
         && (control.sensitivity === undefined || (isFiniteNumber(control.sensitivity) && control.sensitivity > 0))
         && (control.scale === undefined || isMouseScale(control.scale))
+        && (control.offset === undefined || isMouseOffset(control.offset))
         && (control.touch === undefined || isMouseTouchMode(control.touch))
         && (control.pointerLock === undefined || typeof control.pointerLock === "boolean");
 }

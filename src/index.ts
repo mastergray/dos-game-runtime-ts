@@ -113,8 +113,10 @@ export {
     isMouseSourceConfig,                                           // Guard for MouseSourceConfig
     isPointerLockLike,                                             // Guard for PointerLockLike
     isSensitivity,                                                 // Guard for a positive finite sensitivity
+    isMouseOffset,                                                 // Guard for MouseOffset
     isMouseScale,                                                  // Guard for MouseScale
     isMouseTouchMode,                                              // Guard for MouseTouchMode
+    type MouseOffset,                                              // Per-axis shifts for absolute positions
     type MouseScale,                                               // Per-axis multipliers for absolute positions
     type MouseSourceConfig,                                        // MouseSource construction config
     type MouseTouchMode,                                           // "none" | "absolute"

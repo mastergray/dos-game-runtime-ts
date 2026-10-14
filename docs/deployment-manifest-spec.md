@@ -150,7 +150,7 @@ export interface KeyboardPolicy {
     readonly reject?: ReadonlyArray<KeyCode>;                      // Codes left to the page (the shell's own shortcuts); none when omitted
 }
 
-// INTERFACE :: {enabled:BOOLEAN?, touch:mouseTouchMode?, pointerLock:BOOLEAN?, sensitivity:NUMBER?, scale:{x:NUMBER, y:NUMBER}?}
+// INTERFACE :: {enabled:BOOLEAN?, touch:mouseTouchMode?, pointerLock:BOOLEAN?, sensitivity:NUMBER?, scale:{x:NUMBER, y:NUMBER}?, offset:{x:NUMBER, y:NUMBER}?}
 export interface MousePolicy {
     readonly enabled?: boolean;                                    // Starts enabled; true when omitted. False for games whose intro buffers clicks
     readonly touch?: MouseTouchMode;                               // "absolute" when omitted
@@ -159,6 +159,11 @@ export interface MousePolicy {
     readonly scale?: { x: number; y: number };                     // Multipliers for absolute positions; 1 and 1 when omitted. DOS mouse drivers report
                                                                    // x doubled (0 to 639) in 320-pixel modes; a game that takes that as pixels puts its
                                                                    // cursor at twice the pointer's x, and x 0.5 corrects it (one puzzle game so far)
+    readonly offset?: { x: number; y: number };                    // Shifts added after the scale, as fractions of the picture, then clamped; for a
+                                                                   // game that draws its cursor away from the driver's position (the same puzzle game
+                                                                   // draws it ten pixels up and left, so 0.016 and 0.046, the x shift halved like the
+                                                                   // scale, put it under the pointer; within the margin an offset spans, the
+                                                                   // position is pinned at that edge so edge scrolling still works)
 }
 
 // TYPE :: "left" | "right" | "upper-left" | "upper-right" | "lower-left" | "lower-right"

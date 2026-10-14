@@ -11,6 +11,7 @@ import {
     isMouseControl,                                              // Predicate under test
     isStickControl,                                              // Predicate under test
     isTrackpadControl,                                           // Predicate under test
+    MouseSource,                                                 // Its absolute-position correction under test
 } from "../../src/index.ts";
 import FakeEmulatorAdapter from "../support/FakeEmulatorAdapter.ts";   // An EmulatorAdapter for the adapter field
 
@@ -44,7 +45,7 @@ const NOT_SURFACE = {};                                                         
 const BAD_TARGET = { kind: "nope" };                                            // Fails isInputTarget: unknown kind
 
 const FULL_KEYBOARD: KeyboardControl = { enabled: true, filter: () => true, preventDefault: false };            // Every field present and valid
-const FULL_MOUSE: MouseControl = { enabled: false, sensitivity: 2, scale: { x: 0.5, y: 1 }, touch: "absolute", pointerLock: true };   // Every field present and valid
+const FULL_MOUSE: MouseControl = { enabled: false, sensitivity: 2, scale: { x: 0.5, y: 1 }, offset: { x: 0.03, y: -0.05 }, touch: "absolute", pointerLock: true };   // Every field present and valid
 const FULL_BUTTON: ButtonControl = {                                                                            // Every field present and valid
     surface: SURFACE,
     target: { kind: "key", code: "Space" },
@@ -114,11 +115,25 @@ const testFile: TestFile = {
         verdict("isKeyboardControl rejects filter that is not a function", isKeyboardControl, { ...FULL_KEYBOARD, filter: "ArrowUp" }, false),
         verdict("isKeyboardControl rejects preventDefault that is not a boolean", isKeyboardControl, { ...FULL_KEYBOARD, preventDefault: 1 }, false),
 
+        // MouseSource.corrected: scale, then offset, pinned at the edge inside the offset's margin, clamped
+        {
+            label: "MouseSource.corrected scales, shifts, pins inside the margin and clamps",
+            run: () => CTGTest.init("MouseSource.corrected")
+                .assert("identity when unscaled and unshifted", () => MouseSource.corrected(0.3, 1, 0), P.equals(0.3))
+                .assert("scale halves the position", () => MouseSource.corrected(0.6, 0.5, 0), P.equals(0.3))
+                .assert("offset shifts after the scale", () => MouseSource.corrected(0.6, 0.5, 0.016), P.equals(0.316))
+                .assert("inside a positive offset's margin the position pins at 0", () => MouseSource.corrected(0.02, 0.5, 0.016), P.equals(0))
+                .assert("inside a negative offset's margin the position pins at 1", () => MouseSource.corrected(0.99, 1, -0.05), P.equals(1))
+                .assert("the high end clamps at 1", () => MouseSource.corrected(1, 1, 0.3), P.equals(1))
+                .start(undefined),
+        },
+
         // isMouseControl
         verdict("isMouseControl accepts enabled, sensitivity, touch and pointerLock all present and valid", isMouseControl, FULL_MOUSE, true),
         verdict("isMouseControl accepts an empty object: every field is optional", isMouseControl, {}, true),
         verdict("isMouseControl rejects a scale with a zero axis", isMouseControl, { ...FULL_MOUSE, scale: { x: 0, y: 1 } }, false),
         verdict("isMouseControl rejects a scale missing an axis", isMouseControl, { ...FULL_MOUSE, scale: { x: 0.5 } }, false),
+        verdict("isMouseControl rejects an offset that is not finite", isMouseControl, { ...FULL_MOUSE, offset: { x: Infinity, y: 0 } }, false),
         verdict("isMouseControl rejects a value that is not an object", isMouseControl, null, false),
         verdict("isMouseControl rejects enabled that is not a boolean", isMouseControl, { ...FULL_MOUSE, enabled: "no" }, false),
         verdict("isMouseControl rejects sensitivity that is not a finite number", isMouseControl, { ...FULL_MOUSE, sensitivity: NaN }, false),
