@@ -44,7 +44,7 @@ const NOT_SURFACE = {};                                                         
 const BAD_TARGET = { kind: "nope" };                                            // Fails isInputTarget: unknown kind
 
 const FULL_KEYBOARD: KeyboardControl = { enabled: true, filter: () => true, preventDefault: false };            // Every field present and valid
-const FULL_MOUSE: MouseControl = { enabled: false, sensitivity: 2, touch: "absolute", pointerLock: true };      // Every field present and valid
+const FULL_MOUSE: MouseControl = { enabled: false, sensitivity: 2, scale: { x: 0.5, y: 1 }, touch: "absolute", pointerLock: true };   // Every field present and valid
 const FULL_BUTTON: ButtonControl = {                                                                            // Every field present and valid
     surface: SURFACE,
     target: { kind: "key", code: "Space" },
@@ -117,6 +117,8 @@ const testFile: TestFile = {
         // isMouseControl
         verdict("isMouseControl accepts enabled, sensitivity, touch and pointerLock all present and valid", isMouseControl, FULL_MOUSE, true),
         verdict("isMouseControl accepts an empty object: every field is optional", isMouseControl, {}, true),
+        verdict("isMouseControl rejects a scale with a zero axis", isMouseControl, { ...FULL_MOUSE, scale: { x: 0, y: 1 } }, false),
+        verdict("isMouseControl rejects a scale missing an axis", isMouseControl, { ...FULL_MOUSE, scale: { x: 0.5 } }, false),
         verdict("isMouseControl rejects a value that is not an object", isMouseControl, null, false),
         verdict("isMouseControl rejects enabled that is not a boolean", isMouseControl, { ...FULL_MOUSE, enabled: "no" }, false),
         verdict("isMouseControl rejects sensitivity that is not a finite number", isMouseControl, { ...FULL_MOUSE, sensitivity: NaN }, false),

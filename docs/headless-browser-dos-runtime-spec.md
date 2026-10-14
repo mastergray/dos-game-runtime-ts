@@ -946,7 +946,7 @@ class DosInput {
 - **`keyPress`.** `keyDown` then `keyUp` synchronously. Exists because
   some deployments want a tap gesture to type a key.
 - **`mouseMove`.** Forwards to the session unchanged; the input class
-  applies no sensitivity. Sensitivity is a deployment concern applied
+  applies no sensitivity, and no scale. Both are deployment concerns applied
   in `Trackpad`/`MouseSource` config (roadmap §9). A zero delta on both
   axes is not forwarded.
 - **`mouseMoveTo`.** Requires both coordinates finite and within

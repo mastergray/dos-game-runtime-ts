@@ -24,12 +24,21 @@ export interface PointerLockLike {
     };
 }
 
-// INTERFACE :: {input:dosInput, surface:inputSurface, sensitivity:finiteNumber?, pointerLock:pointerLockLike?}
+// INTERFACE :: {x:finiteNumber, y:finiteNumber}
+// Per-axis multipliers for absolute positions, for a game that reads the driver's position on a different scale than the
+// screen: a 320-pixel-wide game that takes the driver's doubled x range as pixels needs x 0.5.
+export interface MouseScale {
+    readonly x: FiniteNumber;                                      // Positive
+    readonly y: FiniteNumber;                                      // Positive
+}
+
+// INTERFACE :: {input:dosInput, surface:inputSurface, sensitivity:finiteNumber?, scale:mouseScale?, pointerLock:pointerLockLike?}
 // Construction config: where mouse events come from, where deltas go, and how to scale them.
 export interface MouseSourceConfig {
     readonly input: DosInput;                                      // Input API the deltas and buttons are forwarded to
     readonly surface: InputSurface;                                // Element the pointer listeners attach to
     readonly sensitivity?: FiniteNumber;                           // Multiplier applied to deltas; positive; 1 when omitted
+    readonly scale?: MouseScale;                                   // Multipliers applied to absolute positions; 1 and 1 when omitted
     readonly pointerLock?: PointerLockLike;                        // Element to lock the pointer to; lock() throws UNSUPPORTED when omitted
     readonly touch?: MouseTouchMode;                               // Touch handling; "none" when omitted
 }
@@ -44,6 +53,14 @@ export interface MouseSourceConfig {
 // True when value is a positive finite number, the rule for sensitivity
 export function isSensitivity(value: unknown): value is FiniteNumber {
     return isFiniteNumber(value) && value > 0;
+}
+
+// PREDICATE :: UNKNOWN -> BOOLEAN
+// True when value is a MouseScale: positive finite x and y
+export function isMouseScale(value: unknown): value is MouseScale {
+    if (typeof value !== "object" || value === null) return false;
+    const scale = value as MouseScale;
+    return isSensitivity(scale.x) && isSensitivity(scale.y);
 }
 
 // PREDICATE :: UNKNOWN -> BOOLEAN
@@ -70,6 +87,7 @@ export function isMouseSourceConfig(value: unknown): value is MouseSourceConfig 
     return config.input instanceof DosInput
         && isInputSurface(config.surface)
         && (config.sensitivity === undefined || isSensitivity(config.sensitivity))
+        && (config.scale === undefined || isMouseScale(config.scale))
         && (config.pointerLock === undefined || isPointerLockLike(config.pointerLock))
         && (config.touch === undefined || isMouseTouchMode(config.touch));
 }

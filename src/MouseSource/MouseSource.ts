@@ -7,6 +7,7 @@ import type { FiniteNumber, InputSurface, MouseButton } from "../shared.types.js
 import {
     isMouseSourceConfig,                                           // Guards the construction config
     isSensitivity,                                                 // Guards the sensitivity setter
+    type MouseScale,                                               // Per-axis multipliers for absolute positions
     type MouseSourceConfig,                                        // Construction config shape
     type MouseTouchMode,                                           // Touch handling literal
     type PointerLockLike,                                          // Element shape lock() uses
@@ -37,6 +38,7 @@ export default class MouseSource {
     private readonly _listener: (event: Event) => void;            // One bound listener dispatched by event type
     private readonly _touch: MouseTouchMode;                       // How touch pointers are treated
     private _sensitivity: FiniteNumber;                            // Multiplier applied to raw deltas
+    private readonly _scale: MouseScale;                           // Multipliers applied to absolute positions
     private _enabled: boolean;                                     // Gate: while false, pointer events are ignored
     private _touchId: number | null;                               // The touch pointer acting as the cursor, or null
     private _attached: boolean;                                    // Whether listeners are installed
@@ -55,6 +57,7 @@ export default class MouseSource {
         this._input = config.input;
         this._surface = config.surface;
         this._pointerLock = config.pointerLock ?? null;
+        this._scale = config.scale ?? { x: 1, y: 1 };
         this._touch = config.touch ?? "none";
         this._enabled = true;
         this._touchId = null;
@@ -246,12 +249,12 @@ export default class MouseSource {
     }
 
     // PRIVATE :: pointerEvent -> VOID
-    // Normalizes the pointer's client position over the surface rect to 0..1 on each axis, clamped, and forwards it
+    // Normalizes the pointer's client position over the surface rect to 0..1 on each axis, applies the scale, clamps, and forwards it
     private sendPosition(pointer: PointerEvent): void {
         const rect = this._surface.getBoundingClientRect();
         if (!(rect.width > 0) || !(rect.height > 0)) return;
         const clamp = (value: number): number => Math.min(1, Math.max(0, value));
-        this._input.mouseMoveTo(clamp((pointer.clientX - rect.left) / rect.width), clamp((pointer.clientY - rect.top) / rect.height));
+        this._input.mouseMoveTo(clamp((pointer.clientX - rect.left) / rect.width * this._scale.x), clamp((pointer.clientY - rect.top) / rect.height * this._scale.y));
     }
 
     // PRIVATE :: VOID -> VOID

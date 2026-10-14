@@ -104,6 +104,7 @@ export const MANIFEST_SCHEMA = {
                         touch: { enum: ["none", "absolute"] },
                         pointerLock: { type: "boolean" },
                         sensitivity: { type: "number", exclusiveMinimum: 0 },
+                        scale: { type: "object", required: ["x", "y"], additionalProperties: false, properties: { x: { type: "number", exclusiveMinimum: 0 }, y: { type: "number", exclusiveMinimum: 0 } }, description: "Multipliers for absolute positions; x 0.5 for a game that reads the driver's doubled x range as pixels" },
                     },
                 },
                 touch: {

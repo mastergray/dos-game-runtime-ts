@@ -150,12 +150,15 @@ export interface KeyboardPolicy {
     readonly reject?: ReadonlyArray<KeyCode>;                      // Codes left to the page (the shell's own shortcuts); none when omitted
 }
 
-// INTERFACE :: {enabled:BOOLEAN?, touch:mouseTouchMode?, pointerLock:BOOLEAN?, sensitivity:NUMBER?}
+// INTERFACE :: {enabled:BOOLEAN?, touch:mouseTouchMode?, pointerLock:BOOLEAN?, sensitivity:NUMBER?, scale:{x:NUMBER, y:NUMBER}?}
 export interface MousePolicy {
     readonly enabled?: boolean;                                    // Starts enabled; true when omitted. False for games whose intro buffers clicks
     readonly touch?: MouseTouchMode;                               // "absolute" when omitted
     readonly pointerLock?: boolean;                                // false when omitted
     readonly sensitivity?: number;                                 // Locked-delta multiplier; 1 when omitted
+    readonly scale?: { x: number; y: number };                     // Multipliers for absolute positions; 1 and 1 when omitted. DOS mouse drivers report
+                                                                   // x doubled (0 to 639) in 320-pixel modes; a game that takes that as pixels puts its
+                                                                   // cursor at twice the pointer's x, and x 0.5 corrects it (one puzzle game so far)
 }
 
 // TYPE :: "left" | "right" | "upper-left" | "upper-right" | "lower-left" | "lower-right"

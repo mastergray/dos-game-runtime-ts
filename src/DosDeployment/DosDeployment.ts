@@ -233,6 +233,7 @@ export default class DosDeployment {
         if (mouse !== undefined) {
             const mouseConfig: { -readonly [K in keyof MouseSourceConfig]: MouseSourceConfig[K] } = { input, surface: this._canvas };
             if (mouse.sensitivity !== undefined) mouseConfig.sensitivity = mouse.sensitivity;
+            if (mouse.scale !== undefined) mouseConfig.scale = mouse.scale;
             if (mouse.touch !== undefined) mouseConfig.touch = mouse.touch;
             if (mouse.pointerLock === true) mouseConfig.pointerLock = this._canvas;
             this._mouse = MouseSource.init(mouseConfig);

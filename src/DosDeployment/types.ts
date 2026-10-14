@@ -27,7 +27,9 @@ import {
     type TrackpadMap,                                              // What a trackpad control drives
 } from "../InputMapper/types.js";
 import {
+    isMouseScale,                                                  // Guards the mouse control's absolute scale
     isMouseTouchMode,                                              // Guards the mouse control's touch mode
+    type MouseScale,                                               // Per-axis multipliers for absolute positions
     type MouseTouchMode,                                           // How the mouse source treats touch pointers
 } from "../MouseSource/types.js";
 import {
@@ -49,11 +51,12 @@ export interface KeyboardControl {
     readonly preventDefault?: boolean;                             // Whether handled key events are prevented; true when omitted
 }
 
-// INTERFACE :: {enabled:BOOLEAN?, sensitivity:finiteNumber?, touch:mouseTouchMode?, pointerLock:BOOLEAN?}
+// INTERFACE :: {enabled:BOOLEAN?, sensitivity:finiteNumber?, scale:mouseScale?, touch:mouseTouchMode?, pointerLock:BOOLEAN?}
 // Mouse source options for a deployment; the source listens on the canvas.
 export interface MouseControl {
     readonly enabled?: boolean;                                    // Initial enable gate of the source; true when omitted
     readonly sensitivity?: FiniteNumber;                           // Positive multiplier for locked deltas; 1 when omitted
+    readonly scale?: MouseScale;                                   // Positive multipliers for absolute positions; 1 and 1 when omitted
     readonly touch?: MouseTouchMode;                               // Touch handling; "none" when omitted
     readonly pointerLock?: boolean;                                // When true, the canvas is the source's pointer lock target
 }
@@ -144,6 +147,7 @@ export function isMouseControl(value: unknown): value is MouseControl {
     const control = value as MouseControl;
     return (control.enabled === undefined || typeof control.enabled === "boolean")
         && (control.sensitivity === undefined || (isFiniteNumber(control.sensitivity) && control.sensitivity > 0))
+        && (control.scale === undefined || isMouseScale(control.scale))
         && (control.touch === undefined || isMouseTouchMode(control.touch))
         && (control.pointerLock === undefined || typeof control.pointerLock === "boolean");
 }

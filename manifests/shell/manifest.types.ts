@@ -94,6 +94,7 @@ export interface MousePolicy {
     readonly touch?: MouseTouchMode;                               // "absolute" when omitted
     readonly pointerLock?: boolean;                                // false when omitted
     readonly sensitivity?: number;                                 // Positive locked-delta multiplier; 1 when omitted
+    readonly scale?: { readonly x: number; readonly y: number };   // Positive multipliers for absolute positions; for a game that reads the driver's doubled x range as pixels, x 0.5
 }
 
 // TYPE :: "left" | "right" | "upper-left" | "upper-right" | "lower-left" | "lower-right"
@@ -294,14 +295,16 @@ export function isKeyboardPolicy(value: unknown): value is KeyboardPolicy {
 }
 
 // PREDICATE :: UNKNOWN -> BOOLEAN
-// True when value is a MousePolicy: enabled and pointerLock absent or boolean, touch absent or a MouseTouchMode, sensitivity absent or positive
+// True when value is a MousePolicy: enabled and pointerLock absent or boolean, touch absent or a MouseTouchMode, sensitivity absent or
+// positive, scale absent or positive on both axes
 export function isMousePolicy(value: unknown): value is MousePolicy {
     if (typeof value !== "object" || value === null) return false;
     const policy = value as MousePolicy;
     return isOptionalBoolean(policy.enabled)
         && (policy.touch === undefined || isMouseTouchMode(policy.touch))
         && isOptionalBoolean(policy.pointerLock)
-        && (policy.sensitivity === undefined || (Number.isFinite(policy.sensitivity) && policy.sensitivity > 0));
+        && (policy.sensitivity === undefined || (Number.isFinite(policy.sensitivity) && policy.sensitivity > 0))
+        && (policy.scale === undefined || (typeof policy.scale === "object" && policy.scale !== null && [policy.scale.x, policy.scale.y].every((axis) => Number.isFinite(axis) && axis > 0)));
 }
 
 // PREDICATE :: UNKNOWN -> BOOLEAN
