@@ -260,6 +260,38 @@ into `<dir>/<slug>/` with an index at `<dir>/index.html`; `--base
 `npm run manifest-schema` rewrites the editor schema after a change to
 the manifest types.
 
+### From a project of your own
+
+A deployments project keeps its games and manifests and installs this
+package for the shell and the build; nothing is copied from here.
+
+```
+npm init -y
+npm install github:mastergray/dos-game-runtime-ts
+```
+
+Lay it out as `games/<slug>/` for the files and `manifests/<slug>/`
+for `manifest.json` and `main.ts`, with `main.ts` importing the shell
+from the package:
+
+```ts
+import { mount } from "dos-game-runtime-ts/shell";
+void mount(new URL("./manifest.json", import.meta.url));
+```
+
+and `"$schema": "../../node_modules/dos-game-runtime-ts/manifests/shell/manifest.schema.json"`
+in each manifest for editor completion. Then:
+
+```
+npx dos-build-manifests --all          # dist/<slug>/ for every manifest, plus dist/index.html
+npx dos-build-manifests <slug>         # one game
+npx dos-serve-dir dist 8080            # a look at the result, with the isolation headers; 0.0.0.0 as a third argument serves the LAN
+```
+
+`--root <dir>` points the build at a project other than the current
+directory. Game folders in `load.source` resolve against the project
+root, so the same manifests build anywhere the project is checked out.
+
 Twelve games have manifests on the author's machine. Their folders
 under `manifests/<slug>/` are ignored, like the game files, since they
 are commercial titles used as local test material; the shell, the
