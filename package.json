@@ -1,7 +1,7 @@
 {
   "name": "dos-game-runtime-ts",
   "version": "0.1.0",
-  "description": "Headless browser DOS runtime plus reusable input primitives; each game deployment owns everything above that boundary",
+  "description": "Run DOS games in the browser with a headless js-dos runtime using a manifest that turns game assets into a standalone web app",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,11 +1,13 @@
 # dos-game-runtime-ts
 
-A headless browser DOS runtime plus reusable input primitives. Each game
-deployment owns everything above that boundary: the page, the layout,
-which controls exist, and what they mean. The runtime owns how DOS
-executes, how video and audio reach the browser, how keyboard, mouse and
-joystick input reach DOS, and the pointer mechanics the controls are
-built from.
+Run DOS games in the browser with a headless js-dos runtime using a manifest that turns game assets into a standalone web app.
+
+The runtime owns how DOS executes, how video and audio reach the
+browser, how keyboard, mouse and joystick input reach DOS, and the
+pointer mechanics touch controls are built from. A game's page owns the
+rest: the layout, which controls exist, and what they mean. A manifest
+describes a game once, and the shared shell and build turn it into a
+page that works on desktop, phone and tablet.
 
 Design: [docs/headless-browser-dos-runtime-roadmap.md](docs/headless-browser-dos-runtime-roadmap.md).
 Implementation spec: [docs/headless-browser-dos-runtime-spec.md](docs/headless-browser-dos-runtime-spec.md).
