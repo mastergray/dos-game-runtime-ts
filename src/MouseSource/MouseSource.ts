@@ -30,7 +30,8 @@ export default class MouseSource {
         1: "middle",
         2: "right",
     };
-    static readonly EVENT_TYPES = ["pointerdown", "pointermove", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"] as const;   // Listened-for event types
+    static readonly EVENT_TYPES = ["pointerdown", "pointermove", "pointerup", "pointercancel", "lostpointercapture", "pointerleave", "contextmenu"] as const;   // Listened-for event types
+    static readonly EDGE_INSET = 0.03;                             // How far inside an edge the position settles when the pointer leaves the surface
 
     /* Instance Fields */
     private readonly _input: DosInput;                             // Where deltas and buttons go
@@ -199,6 +200,7 @@ export default class MouseSource {
                 case "pointerup":
                 case "pointercancel":
                 case "lostpointercapture": this.releaseHeld(); break;
+                case "pointerleave": this.handleLeave(pointer); break;
                 default: break;
             }
             return;
@@ -263,6 +265,30 @@ export default class MouseSource {
             MouseSource.corrected((pointer.clientX - rect.left) / rect.width, this._scale.x, this._offset.x),
             MouseSource.corrected((pointer.clientY - rect.top) / rect.height, this._scale.y, this._offset.y),
         );
+    }
+
+    // PRIVATE :: pointerEvent -> VOID
+    // When the mouse leaves the surface unlocked, the game would otherwise keep the last position forever; a game that scrolls
+    // while the position is pinned at an edge would scroll on. So the departing position is sent settled a little inside any
+    // edge it sits on, as a mouse pulled back from the edge would be
+    private handleLeave(pointer: PointerEvent): void {
+        if (this.isLocked) return;
+        const rect = this._surface.getBoundingClientRect();
+        if (!(rect.width > 0) || !(rect.height > 0)) return;
+        const settle = (position: number, scale: number, offset: number): number =>
+            MouseSource.inward(MouseSource.corrected(MouseSource.inward(Math.min(1, Math.max(0, position))), scale, offset));   // Inside the surface's edge, then inside the sent range's edge
+        this._input.mouseMoveTo(
+            settle((pointer.clientX - rect.left) / rect.width, this._scale.x, this._offset.x),
+            settle((pointer.clientY - rect.top) / rect.height, this._scale.y, this._offset.y),
+        );
+    }
+
+    // STATIC :: NUMBER -> NUMBER
+    // A position on an edge moved EDGE_INSET inside it; any other position unchanged
+    static inward(position: number): number {
+        if (position <= 0) return MouseSource.EDGE_INSET;
+        if (position >= 1) return 1 - MouseSource.EDGE_INSET;
+        return position;
     }
 
     // STATIC :: NUMBER, NUMBER, NUMBER -> NUMBER

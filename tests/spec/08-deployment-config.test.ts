@@ -125,6 +125,9 @@ const testFile: TestFile = {
                 .assert("inside a positive offset's margin the position pins at 0", () => MouseSource.corrected(0.02, 0.5, 0.016), P.equals(0))
                 .assert("inside a negative offset's margin the position pins at 1", () => MouseSource.corrected(0.99, 1, -0.05), P.equals(1))
                 .assert("the high end clamps at 1", () => MouseSource.corrected(1, 1, 0.3), P.equals(1))
+                .assert("inward settles a position on the low edge inside it", () => MouseSource.inward(0), P.equals(MouseSource.EDGE_INSET))
+                .assert("inward settles a position on the high edge inside it", () => MouseSource.inward(1), P.equals(1 - MouseSource.EDGE_INSET))
+                .assert("inward leaves an interior position alone", () => MouseSource.inward(0.4), P.equals(0.4))
                 .start(undefined),
         },
 
