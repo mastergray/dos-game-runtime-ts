@@ -1,6 +1,6 @@
 {
   "name": "dos-game-runtime-ts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run DOS games in the browser with a headless js-dos runtime using a manifest that turns game assets into a standalone web app",
   "type": "module",
   "main": "./dist/index.js",
